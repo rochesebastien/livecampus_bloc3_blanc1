@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
@@ -14,8 +14,8 @@ const corsOptions = {
     credentials: true,
     optionsSuccessStatus: 204
 }
-// Middleware
 
+// Middleware
 app.use(bodyParser.json())
 app.use(cors(corsOptions))
 app.use(bodyParser.urlencoded({ extended: true }));
