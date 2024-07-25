@@ -28,11 +28,12 @@ const SignupForm = () => {
         body: JSON.stringify(formData)
       });
       if (response.ok) {
-        alert('Inscription réussie');
+        console.log(response);
       } else {
         alert('Erreur lors de l\'inscription');
       }
     } catch (error) {
+      console.log(error);
       alert('Erreur réseau');
     }
   };
@@ -44,7 +45,7 @@ const SignupForm = () => {
       <input type="text" name="firstname" placeholder="Prénom" value={formData.firstname} onChange={handleChange} required />
       <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
       <input type="password" name="password" placeholder="Mot de passe" value={formData.password} onChange={handleChange} required />
-      <button type="submit">S'inscrire</button>
+      <button type="submit">S&rsquo;inscrire</button>
     </form>
   );
 };

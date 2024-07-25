@@ -9,3 +9,9 @@ CREATE TABLE IF NOT EXISTS  users (
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS clients (
+  user_id INT PRIMARY KEY,
+  role VARCHAR(50) NOT NULL DEFAULT 'client',
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);

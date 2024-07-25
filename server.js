@@ -9,7 +9,7 @@ const path = require('path');
 const app = express();
 const port = 3000;
 const corsOptions = {
-    origin: 'http://localhost:3306',
+    origin: 'http://localhost:5173',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204
@@ -73,10 +73,95 @@ app.post('/api/signin', (req, res) => {
       return;
     }
 
-    const token = jwt.sign({ id: user.id }, 'secret-key', { expiresIn: 86400 });
+    const token = jwt.sign(
+      {
+      id: user.id, 
+      lastname: user.lastname,
+      firstname: user.firstname,
+      email: user.email
+    }
+      , 'top-secret-la-clé', 
+      { expiresIn: 86400 });
+    
     res.status(200).send({ auth: true, token });
   });
 });
+
+// Verify Token
+app.get('/api/verify', (req, res) => {
+  if (!req.cookies.token) {
+    res.status(401).send('No token provided');
+    return;
+  }
+
+  jwt.verify(token, 'top-secret-la-clé', (err, decoded_user) => {
+    if (err) {
+      res.status(401).send('Invalid token');
+      return;
+    }
+    res.status(200).send(decoded_user);
+  });
+});
+
+// get all clients
+app.get('/api/dashboard/clients', (req, res) => {
+  const sql = 'SELECT users.id, users.lastname, users.firstname, users.email FROM clients INNER JOIN users ON clients.user_id = users.id';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Server error');
+      return;
+    }
+    res.status(200).json(results);
+  });
+});
+
+
+// modify a client
+app.put('/api/dashboard/clients/:userId', (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+  const { role } = req.body;
+
+  const sql = 'UPDATE clients SET role = ? WHERE user_id = ?';
+  db.query(sql, [role, userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    if (result.affectedRows === 0) {
+      res.status(404).send('Client not found');
+      return;
+    }
+
+    res.status(200).send('Client updated');
+  });
+});
+
+
+// delete a client
+app.delete('/api/dashboard/clients/:userId', (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+
+  const sql = 'DELETE FROM clients WHERE user_id = ?';
+  db.query(sql, [userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    if (result.affectedRows === 0) {
+      res.status(404).send('Client not found');
+      return;
+    }
+
+    res.status(200).send('Client deleted');
+  });
+});
+
+
 
 app.use(express.static(path.join(__dirname, "./client/dist")))
 app.get("*", (_, res) => {
@@ -84,6 +169,8 @@ app.get("*", (_, res) => {
       path.join(__dirname, "./client/dist/index.html")
     )
 })
+
+
 // Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

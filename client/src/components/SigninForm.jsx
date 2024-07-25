@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import './SigninForm.css';
-const baseURI = import.meta.env.VITE_API_BASE_URL
+import { UserContext } from '../contexts/UserContext';
+import Cookies from 'js-cookie';
+
+const baseURI = import.meta.env.VITE_API_BASE_URL;
+
 const SigninForm = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  const { setUser } = useContext(UserContext);
 
   const handleChange = (e) => {
     setFormData({
@@ -24,7 +30,11 @@ const SigninForm = () => {
         },
         body: JSON.stringify(formData)
       });
+
       if (response.ok) {
+        const data = await response.json();
+        Cookies.set('token', data.token, { expires: 30 }); // expire in 30 d
+        // setUser(data.user);
         alert('Connexion réussie');
       } else {
         alert('Erreur lors de la connexion');

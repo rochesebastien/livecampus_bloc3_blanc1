@@ -5,6 +5,9 @@ const Header = () => {
   return (
     <header className="headerhead">
       <h1>Garage Auto</h1>
+      <Link to="/dashboard">
+        <button className="login-button">Dashboard</button>
+      </Link>
       <Link to="/auth">
         <button className="login-button">Connexion</button>
       </Link>
